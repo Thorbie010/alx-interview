@@ -1,43 +1,39 @@
 #!/usr/bin/python3
-import sys
+""" Script that reads stdin line by line and computes metrics. """
 
-def print_metrics(total_size, status_counts):
-    print(f"File size: {total_size}")
-    for code in sorted(status_counts):
-        print(f"{code}: {status_counts[code]}")
-    print()
+from sys import stdin
 
-def process_line(line, total_size, status_counts):
+
+status_codes = {
+        '200': 0, '301': 0, '400': 0, '401': 0,
+        '403': 0, '404': 0, '405': 0, '500': 0
+        }
+size = 0
+
+
+def compute_metric():
+    """ Function that reads and computes stdin. """
+
+    print("File size: {}".format(size))
+    for key, val in sorted(status_codes.items()):
+        if val > 0:
+            print("{}: {}".format(key, val))
+
+
+if __name__ == '__main__':
     try:
-        parts = line.split()
-        if len(parts) >= 7 and parts[5] == '"GET' and parts[6].startswith("/projects/"):
-            file_size = int(parts[-1])
-            status_code = int(parts[-2])
+        for i, line in enumerate(stdin, 1):
+            try:
+                my_data = line.split()
+                size += int(my_data[-1])
+                if my_data[-2] in status_codes.keys():
+                    status_codes[my_data[-2]] += 1
+            except Exception:
+                pass
+            if not i % 10:
+                compute_metric()
 
-            total_size += file_size
-            status_counts[status_code] = status_counts.get(status_code, 0) + 1
-
-            return total_size, status_counts
-
-    except (ValueError, IndexError):
-        # Skip lines with incorrect format
-        pass
-
-    return total_size, status_counts
-
-total_size = 0
-status_counts = {}
-line_counter = 0
-
-try:
-    for line in sys.stdin:
-        total_size, status_counts = process_line(line.strip(), total_size, status_counts)
-        line_counter += 1
-
-        if line_counter == 10:
-            print_metrics(total_size, status_counts)
-            line_counter = 0
-
-except KeyboardInterrupt:
-    print_metrics(total_size, status_counts)
-    sys.exit(0)
+    except KeyboardInterrupt:
+        compute_metric()
+        raise
+    compute_metric()
