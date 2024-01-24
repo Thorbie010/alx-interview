@@ -1,3 +1,1 @@
-0x03. Log Parsing
-Algorithm
-Python
+0x03. Log Parsing - Algorithm, Python.
