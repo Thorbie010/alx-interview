@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import sys
 
 def print_metrics(total_size, status_counts):
