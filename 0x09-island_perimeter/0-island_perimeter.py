@@ -9,12 +9,12 @@ described in grid
 def island_perimeter(grid):
     if not grid:
         return 0
-    
+
     rows = len(grid)
     cols = len(grid[0])
-    
+
     perimeter = 0
-    
+
     for i in range(rows):
         for j in range(cols):
             if grid[i][j] == 1:
