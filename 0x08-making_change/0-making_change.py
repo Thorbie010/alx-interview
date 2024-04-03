@@ -1,20 +1,20 @@
 #!/usr/bin/python3
-"""
-Script to determine the fewest number of coins
-needed to meet a given amount total.
-"""
+""" Script for Making Change."""
 
 
 def makeChange(coins, total):
-    """function definition"""
+    """ Function to determine the fewest number of coins needed to
+    meet a given amount total in a pile of coins of different values,"""
+
     if total <= 0:
         return 0
 
-    dp = [float('inf')] * (total + 1)
-    dp[0] = 0
-
+    coins.sort(reverse=True)
+    coins_count = 0
+    remaining_total = total
     for coin in coins:
-        for i in range(coin, total + 1):
-            dp[i] = min(dp[i], dp[i - coin] + 1)
+        while remaining_total >= coin:
+            remaining_total -= coin
+            coins_count += 1
 
-    return dp[total] if dp[total] != float('inf') else -1
+    return coins_count if remaining_total == 0 else -1
