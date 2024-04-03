@@ -1,32 +1,43 @@
-import requests
-import sys
+#!/usr/bin/node
 
-def get_characters(movie_id):
-    url = f"https://swapi.dev/api/films/{movie_id}/"
-    response = requests.get(url)
-    if response.status_code == 200:
-        film_data = response.json()
-        characters_urls = film_data['characters']
-        characters = []
-        for character_url in characters_urls:
-            character_response = requests.get(character_url)
-            if character_response.status_code == 200:
-                character_data = character_response.json()
-                characters.append(character_data['name'])
-            else:
-                print(f"Failed to fetch character data for {character_url}")
-        return characters
-    else:
-        print("Failed to fetch film data.")
-        return []
+const request = require('request');
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python script.py <movie_id>")
-        sys.exit(1)
+function getMovieCharacters (movieId) {
+  const apiUrl = 'https://swapi.dev/api';
+  const filmUrl = `${apiUrl}/films/${movieId}/`;
 
-    movie_id = sys.argv[1]
-    characters = get_characters(movie_id)
-    if characters:
-        for character in characters:
-            print(character)
+  return new Promise((resolve, reject) => {
+    request(filmUrl, (err, _, body) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      const charactersURL = JSON.parse(body).characters;
+      const charactersPromises = charactersURL.map(url => {
+        return new Promise((resolve, reject) => {
+          request(url, (promiseErr, __, charactersReqBody) => {
+            if (promiseErr) {
+              reject(promiseErr);
+              return;
+            }
+            resolve(JSON.parse(charactersReqBody).name);
+          });
+        });
+      });
+
+      Promise.all(charactersPromises)
+        .then(names => resolve(names))
+        .catch(allErr => reject(allErr));
+    });
+  });
+}
+
+if (process.argv.length > 2) {
+  const movieId = process.argv[2];
+  getMovieCharacters(movieId)
+    .then(names => console.log(names.join('\n')))
+    .catch(error => console.error(error));
+} else {
+  console.log('Usage: node script.js <Movie ID>');
+}
