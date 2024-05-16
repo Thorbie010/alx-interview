@@ -1,3 +1,1 @@
-## 0x05. N Queens
-### Algorithm
-### Python
+0x05. N Queens - Algorithm, Python.
